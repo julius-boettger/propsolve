@@ -17,17 +17,22 @@
         name = "propsolve";
         src = ./.;
         cargoLock.lockFile = ./Cargo.lock;
+
+        buildInputs = [ pkgs.z3 ];
       };
     });
 
     devShells = eachSystem (system: pkgs: {
       default = pkgs.mkShell {
+        inherit (self.packages.${system}.default) buildInputs;
+
         nativeBuildInputs = with pkgs; [
           rustc
           cargo
           clippy
           cargo-edit # provides `cargo upgrade` for dependencies
         ];
+
         # fix rust-analyzer in vscode
         RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
       };

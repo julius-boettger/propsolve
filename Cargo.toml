@@ -2,3 +2,7 @@
 name = "propsolve"
 version = "0.0.0"
 edition = "2024"
+
+[dependencies]
+chumsky = "0.12.0"
+z3 = "0.20.0"
