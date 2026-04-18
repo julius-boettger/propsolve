@@ -76,7 +76,7 @@ fn parser<'src>() -> impl Parser<'src, &'src str, Ast<'src>, extra::Err<Rich<'sr
             |lhs, (operator, rhs)| operator(Box::new(lhs), Box::new(rhs)),
         );
 
-        implication.clone().foldl(
+        let equality = implication.clone().foldl(
             choice((
                 just("==").padded().to(Ast::Eq as fn(_, _) -> _),
                 just("!=").padded().to(Ast::Neq as fn(_, _) -> _),
@@ -84,6 +84,21 @@ fn parser<'src>() -> impl Parser<'src, &'src str, Ast<'src>, extra::Err<Rich<'sr
             .then(implication)
             .repeated(),
             |lhs, (operator, rhs)| operator(Box::new(lhs), Box::new(rhs)),
+        );
+
+        // all expressions separated by semicolons have to be true at the same time
+        // => treat them as an AND of expressions
+        let semicolons = equality.clone().foldl(
+            pad_char_op(';').repeated().to(Ast::And as fn(_, _) -> _)
+            .then(equality)
+            .repeated(),
+            |lhs, (operator, rhs)| operator(Box::new(lhs), Box::new(rhs)),
+        );
+
+        // ignore extra semicolons at the end
+        semicolons.foldl(
+            just(';').ignored().repeated(),
+            |lhs, ()| lhs
         )
     })
 }
