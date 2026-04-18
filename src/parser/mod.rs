@@ -1,3 +1,4 @@
+use ariadne::{Color, Label, Report, ReportKind, Source};
 use chumsky::prelude::*;
 
 #[derive(Debug, Clone)]
@@ -12,20 +13,34 @@ pub enum Ast<'src> {
 
     And(Box<Self>, Box<Self>),
     Or(Box<Self>, Box<Self>),
-    Xor(Box<Ast<'src>>, Box<Ast<'src>>),
+    Xor(Box<Self>, Box<Self>),
 
-    Imp(Box<Ast<'src>>, Box<Ast<'src>>),
+    Imp(Box<Self>, Box<Self>),
 
-    Eq(Box<Ast<'src>>, Box<Ast<'src>>),
-    Neq(Box<Ast<'src>>, Box<Ast<'src>>),
+    Eq(Box<Self>, Box<Self>),
+    Neq(Box<Self>, Box<Self>),
 }
 
-pub fn parse<'src>(input: String) -> Ast<'src> {
-    println!("{:?}", parser().parse("a&b|c->d==e!=f"));
-    std::process::exit(0) // DEBUG
+pub fn parse(input: &str) -> Ast<'_> {
+    parser().parse(input).into_result().unwrap_or_else(|errors| {
+        for error in errors {
+            let span_range = error.span().into_range();
+            Report::build(ReportKind::Error, span_range.clone())
+                .with_message(error.to_string())
+                .with_label(
+                    Label::new(span_range)
+                        .with_message(error.reason().to_string())
+                        .with_color(Color::Red),
+                )
+                .finish()
+                .print(Source::from(input))
+                .unwrap();
+        }
+        std::process::exit(1)
+    })
 }
 
-fn parser<'src>() -> impl Parser<'src, &'src str, Ast<'src>> {
+fn parser<'src>() -> impl Parser<'src, &'src str, Ast<'src>, extra::Err<Rich<'src, char>>> {
     let pad_char_op = |c: char| just(c).padded();
     recursive(|ast| {
         let atom = text::ident().map(|id| match id {
