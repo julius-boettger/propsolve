@@ -97,7 +97,7 @@ fn parser<'src>() -> impl Parser<'src, &'src str, Ast<'src>, extra::Err<Rich<'sr
 
         // ignore extra semicolons at the end
         semicolons.foldl(
-            just(';').ignored().repeated(),
+            pad_char_op(';').ignored().repeated(),
             |lhs, ()| lhs
         )
     })
