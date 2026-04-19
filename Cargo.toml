@@ -2,9 +2,12 @@
 name = "propsolve"
 version = "0.0.0"
 edition = "2024"
+description = "Easily describe and solve propositional formulas"
 
 [dependencies]
 z3 = "0.20.0" # solving formulas
 chumsky = "0.12.0" # parsing
 ariadne = "0.6.0" # fancy parser errors
 colored = "3.1.1" # colored cli output
+# cli argument handling
+clap = { version = "4.6.1", features = ["derive", "wrap_help"] }
