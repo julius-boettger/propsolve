@@ -106,5 +106,7 @@ fn parser<'src>() -> impl Parser<'src, &'src str, Ast<'src>, extra::Err<Rich<'sr
             pad_char_op(';').ignored().repeated(),
             |lhs, ()| lhs
         )
+        // speed up compile times a lot
+        .boxed()
     })
 }
