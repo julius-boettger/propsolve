@@ -40,3 +40,15 @@ pub fn output_neg_run(output: &Output) {
         Output::Unknown => println!("could not solve negated formula (result {}), blame z3 🤷", "unknown".red()),
     }
 }
+
+pub fn invalid_path(file_path: &std::path::PathBuf) {
+    println!("{} Path to input file ({file_path:?}) does not exist", "Error:".red().bold());
+}
+
+pub fn path_is_dir(file_path: &std::path::PathBuf) {
+    println!("{} Path to input file ({file_path:?}) is a directory, not a file", "Error:".red().bold());
+}
+
+pub fn error_reading_path(file_path: &std::path::PathBuf, error: &std::io::Error) {
+    println!("{} Reading path to input file ({file_path:?}) failed: {error}", "Error:".red().bold());
+}
