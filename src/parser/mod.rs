@@ -42,8 +42,19 @@ pub fn parse(input: &str) -> Ast<'_> {
 
 fn parser<'src>() -> impl Parser<'src, &'src str, Ast<'src>, extra::Err<Rich<'src, char>>> {
     let padding = choice((
-        just("//").then(none_of('\n').repeated()).ignored(),
-        text::whitespace().at_least(1).ignored(),
+        // single line comment
+        just("//")
+            .then(none_of('\n').repeated())
+            .ignored(),
+        // multi line comment
+        just("/*")
+            .then(any().and_is(just("*/").not()).repeated())
+            .then(just("*/"))
+            .ignored(),
+        // other whitespace
+        text::whitespace()
+            .at_least(1) // to not conflict with other choices
+            .ignored(),
     )).repeated();
 
     let atom = text::ident().map(|id| match id {
