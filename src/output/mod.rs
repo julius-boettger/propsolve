@@ -1,11 +1,13 @@
-pub enum Output<'src> {
-    String(String),
-    Model(Vec<(&'src str, bool)>),
+pub enum Output {
+    Sat(Vec<(String, bool)>),
+    Unsat,
+    Unknown,
 }
 
 pub fn output(output: &Output) {
     match output {
-        Output::String(s) => println!("{s}"),
-        Output::Model(model) => todo!(),
+        Output::Sat(items) => println!("{items:?}"),
+        Output::Unsat => todo!(),
+        Output::Unknown => todo!(),
     }
 }
