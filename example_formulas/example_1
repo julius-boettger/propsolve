@@ -1,7 +1,9 @@
-N -> M;
+N -> M; // comment
 (O & L) | (!O & !L);
 (M & N) | (N & A) | (A & M);
+/* a multi-line
+   comment      */
 !(M & N & A);
 (S | C) ^ A == (!(S | C) | !A) & (S | C | A);
 !B & !T;
-A;
+//A;
