@@ -41,14 +41,20 @@ pub fn parse(input: &str) -> Ast<'_> {
 }
 
 fn parser<'src>() -> impl Parser<'src, &'src str, Ast<'src>, extra::Err<Rich<'src, char>>> {
-    let pad_char_op = |c: char| just(c).padded();
-    recursive(|ast| {
-        let atom = text::ident().map(|id| match id {
-            "true" => Ast::Const(true),
-            "false" => Ast::Const(false),
-            _ => Ast::Var(id),
-        }).padded();
+    let padding = choice((
+        just("//").then(none_of('\n').repeated()).ignored(),
+        text::whitespace().at_least(1).ignored(),
+    )).repeated();
 
+    let atom = text::ident().map(|id| match id {
+        "true" => Ast::Const(true),
+        "false" => Ast::Const(false),
+        _ => Ast::Var(id),
+    }).padded_by(padding);
+
+    let pad_char_op = |c: char| just(c).padded_by(padding);
+
+    recursive(|ast| {
         let nested_atom = choice((
             atom,
             ast.delimited_by(pad_char_op('('), pad_char_op(')')),
@@ -70,7 +76,7 @@ fn parser<'src>() -> impl Parser<'src, &'src str, Ast<'src>, extra::Err<Rich<'sr
         );
 
         let implication = and_or_xor.clone().foldl(
-            just("->").padded().to(Ast::Imp as fn(_, _) -> _)
+            just("->").padded_by(padding).to(Ast::Imp as fn(_, _) -> _)
             .then(and_or_xor)
             .repeated(),
             |lhs, (operator, rhs)| operator(Box::new(lhs), Box::new(rhs)),
@@ -78,8 +84,8 @@ fn parser<'src>() -> impl Parser<'src, &'src str, Ast<'src>, extra::Err<Rich<'sr
 
         let equality = implication.clone().foldl(
             choice((
-                just("==").padded().to(Ast::Eq as fn(_, _) -> _),
-                just("!=").padded().to(Ast::Neq as fn(_, _) -> _),
+                just("==").padded_by(padding).to(Ast::Eq as fn(_, _) -> _),
+                just("!=").padded_by(padding).to(Ast::Neq as fn(_, _) -> _),
             ))
             .then(implication)
             .repeated(),
