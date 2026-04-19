@@ -1,6 +1,12 @@
 use super::output;
 use clap::Parser;
 
+pub struct Input {
+    pub expression: String,
+    // e.g. the file path
+    pub source: String,
+}
+
 #[derive(Parser)]
 #[command(version, about = "Easily describe and solve propositional formulas")]
 struct Args {
@@ -13,7 +19,7 @@ struct Args {
     expression: Option<String>,
 }
 
-pub fn get_input() -> String {
+pub fn get_input() -> Input {
     let args = Args::parse();
 
     if let Some(file_path) = args.file_path {
@@ -27,12 +33,15 @@ pub fn get_input() -> String {
             std::process::exit(1);
         }
 
-        std::fs::read_to_string(file_path.clone()).unwrap_or_else(|error| {
-            output::error_reading_path(&file_path, &error);
-            std::process::exit(1);
-        })
+        match std::fs::read_to_string(file_path.clone()) {
+            Ok(expression) => Input { expression, source: String::from(file_path.to_string_lossy()) },
+            Err(error) => {
+                output::error_reading_path(&file_path, &error);
+                std::process::exit(1);
+            },
+        }
     } else if let Some(expression) = args.expression {
-        expression
+        Input { expression, source: String::from("expression") }
     } else {
         unreachable!()
     }

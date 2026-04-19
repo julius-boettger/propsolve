@@ -1,5 +1,5 @@
-use ariadne::{Color, Label, Report, ReportKind, Source};
 use chumsky::prelude::*;
+use crate::{input, output};
 
 #[derive(Debug, Clone)]
 pub enum Ast<'src> {
@@ -21,20 +21,10 @@ pub enum Ast<'src> {
     Neq(Box<Self>, Box<Self>),
 }
 
-pub fn parse(input: &str) -> Ast<'_> {
-    parser().parse(input).into_result().unwrap_or_else(|errors| {
+pub fn parse(input: &input::Input) -> Ast<'_> {
+    parser().parse(&input.expression).into_result().unwrap_or_else(|errors| {
         for error in errors {
-            let span_range = error.span().into_range();
-            Report::build(ReportKind::Error, span_range.clone())
-                .with_message(error.to_string())
-                .with_label(
-                    Label::new(span_range)
-                        .with_message(error.reason().to_string())
-                        .with_color(Color::Red),
-                )
-                .finish()
-                .print(Source::from(input))
-                .unwrap();
+            output::rich_parser_error(&error, input);
         }
         std::process::exit(1)
     })

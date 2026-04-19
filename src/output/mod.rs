@@ -1,4 +1,8 @@
+use ariadne::{Color, Label, Report, ReportKind, Source};
+use chumsky::error::Rich;
 use colored::Colorize;
+
+use crate::input::Input;
 
 pub enum Output {
     Sat(Vec<(String, bool)>),
@@ -39,6 +43,21 @@ pub fn output_neg_run(output: &Output) {
         Output::Unsat => println!("{}, meaning it is always satisfied", format!("formula is a {}", "tautology".green()).bold()),
         Output::Unknown => println!("could not solve negated formula (result {}), blame z3 🤷", "unknown".red()),
     }
+}
+
+pub fn rich_parser_error(error: &Rich<'_, char>, input: &Input) {
+    let source = &input.source;
+    let span = (source, error.span().into_range());
+    Report::build(ReportKind::Error, span.clone())
+        .with_message(error.to_string())
+        .with_label(
+            Label::new(span)
+                .with_message(error.reason().to_string())
+                .with_color(Color::Red),
+        )
+        .finish()
+        .print((source, Source::from(&input.expression)))
+        .unwrap();
 }
 
 pub fn invalid_path(file_path: &std::path::PathBuf) {
