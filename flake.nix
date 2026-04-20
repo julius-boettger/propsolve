@@ -31,6 +31,16 @@
           cargo
           clippy
           cargo-edit # provides `cargo upgrade` for dependencies
+
+          # convenient command to create a linux release with statically linked z3
+          cmake # for compiling z3 when statically linking
+          (writeShellScriptBin "release-linux" ''
+            rm -rf propsolve-linux-x86_64
+            cargo build --target x86_64-unknown-linux-gnu --release --features "z3/vendored" "$@" || exit 1
+            cp target/x86_64-unknown-linux-gnu/release/propsolve propsolve-linux-x86_64 || exit 1
+            # should work for most linux distros
+            patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 propsolve-linux-x86_64 || exit 1
+          '')
         ];
 
         # fix rust-analyzer in vscode
