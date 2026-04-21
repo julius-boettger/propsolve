@@ -5,6 +5,8 @@ pub struct Input {
     pub expression: String,
     // e.g. the file path
     pub source: String,
+    // whether to print the formula in SMT-LIB
+    pub print: bool,
 }
 
 #[derive(Parser)]
@@ -17,6 +19,10 @@ struct Args {
     /// Directly supply expression instead of reading from file
     #[arg(short, long, conflicts_with = "file_path")]
     expression: Option<String>,
+
+    /// Print formula in SMT-LIB language instead of solving it
+    #[arg(short, long)]
+    print: bool,
 }
 
 pub fn get_input() -> Input {
@@ -34,14 +40,18 @@ pub fn get_input() -> Input {
         }
 
         match std::fs::read_to_string(file_path.clone()) {
-            Ok(expression) => Input { expression, source: String::from(file_path.to_string_lossy()) },
+            Ok(expression) => Input {
+                expression,
+                source: String::from(file_path.to_string_lossy()),
+                print: args.print
+            },
             Err(error) => {
                 output::error_reading_path(&file_path, &error);
                 std::process::exit(1);
             },
         }
     } else if let Some(expression) = args.expression {
-        Input { expression, source: String::from("expression") }
+        Input { expression, source: String::from("expression"), print: args.print }
     } else {
         unreachable!()
     }

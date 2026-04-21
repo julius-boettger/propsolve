@@ -71,3 +71,7 @@ pub fn path_is_dir(file_path: &std::path::PathBuf) {
 pub fn error_reading_path(file_path: &std::path::PathBuf, error: &std::io::Error) {
     println!("{} Reading path to input file ({file_path:?}) failed: {error}", "Error:".red().bold());
 }
+
+pub fn smt_string(smt_string: &str) {
+    println!("{smt_string}");
+}

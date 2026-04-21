@@ -1,7 +1,7 @@
 use std::{collections::{HashMap, HashSet}};
 use z3::{SatResult, Solvable, Solver, ast::Bool};
 
-use crate::{output::Output, parser::Ast};
+use crate::{input::Input, output::{self, Output}, parser::Ast};
 
 fn get_identifiers<'src>(ast: &Ast<'src>) -> HashSet<&'src str> {
     fn collect_identifiers<'src>(ast: &Ast<'src>, identifiers: &mut HashSet<&'src str>) {
@@ -42,7 +42,7 @@ fn build_formula<'src>(ast: &'src Ast<'src>, identifier_map: &HashMap<&'src str,
     }
 }
 
-pub fn solve<'src>(ast: &'src Ast<'src>) -> Output {
+pub fn solve<'src>(input: &Input, ast: &'src Ast<'src>) -> Output {
     let identifiers = get_identifiers(ast);
     let identifier_map: HashMap<_, _> = identifiers.iter()
         .map(|id| (*id, Bool::new_const(*id)))
@@ -51,6 +51,17 @@ pub fn solve<'src>(ast: &'src Ast<'src>) -> Output {
     let formula = build_formula(ast, &identifier_map);
     let solver = Solver::new();
     solver.assert(formula);
+
+    if input.print {
+        let smt_string = solver.to_smt2();
+        // first two lines contain a comment and a (set-info ...)
+        let mut smt_string: String = smt_string.split('\n').skip(2)
+            .collect::<Vec<_>>().join("\n");
+        smt_string.push_str("(get-model)");
+
+        output::smt_string(&smt_string);
+        std::process::exit(0);
+    }
 
     match solver.check() {
         SatResult::Sat => {
