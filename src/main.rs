@@ -9,11 +9,12 @@ fn main() {
     let input = input::get_input();    
     let ast = parser::parse(&input);
     let result = solver::solve(&input, &ast);
-    output::output(&result);
 
     if let Output::Sat(_) = result {
         let neg_ast = Ast::Neg(Box::new(ast));
-        let result = solver::solve(&input, &neg_ast);
-        output::output_neg_run(&result);
+        let neg_result = solver::solve(&input, &neg_ast);
+        output::output_both_runs(&result, &neg_result);
+    } else {
+        output::output_first_run(&result);
     }
 }

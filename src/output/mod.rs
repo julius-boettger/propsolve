@@ -19,7 +19,7 @@ fn print_assignment(assignment: &[(String, bool)]) {
     }
 }
 
-pub fn output(output: &Output) {
+pub fn output_first_run(output: &Output) {
     match output {
         Output::Sat(assignment) => {
             print!("{}", format!("formula is {}", "satisfiable".green()).bold());
@@ -33,11 +33,11 @@ pub fn output(output: &Output) {
     }
 }
 
-pub fn output_neg_run(output: &Output) {
-    println!();
-    match output {
+pub fn output_both_runs(output: &Output, neg_output: &Output) {
+    match neg_output {
         Output::Sat(assignment) => {
-            println!("{}, e.g. with:\n", format!("formula is also {}", "unsatisfiable".red()).bold());
+            output_first_run(output);
+            println!("\n{}, e.g. with:\n", format!("formula is also {}", "unsatisfiable".red()).bold());
             print_assignment(assignment);
         },
         Output::Unsat => println!("{}, meaning it is always satisfied", format!("formula is a {}", "tautology".green()).bold()),
@@ -60,14 +60,17 @@ pub fn rich_parser_error(error: &Rich<'_, char>, input: &Input) {
         .unwrap();
 }
 
+#[allow(clippy::unnecessary_debug_formatting)] // is necessary
 pub fn invalid_path(file_path: &std::path::PathBuf) {
     println!("{} Path to input file ({file_path:?}) does not exist", "Error:".red().bold());
 }
 
+#[allow(clippy::unnecessary_debug_formatting)] // is necessary
 pub fn path_is_dir(file_path: &std::path::PathBuf) {
     println!("{} Path to input file ({file_path:?}) is a directory, not a file", "Error:".red().bold());
 }
 
+#[allow(clippy::unnecessary_debug_formatting)] // is necessary
 pub fn error_reading_path(file_path: &std::path::PathBuf, error: &std::io::Error) {
     println!("{} Reading path to input file ({file_path:?}) failed: {error}", "Error:".red().bold());
 }
