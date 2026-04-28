@@ -5,7 +5,7 @@
 **Motivated by** the fact that common SAT/SMT solver interfaces like the [SMT-LIB language](https://smt-lib.org/language.shtml) take unnecessarily long to use when just trying to quickly describe and check a small propositional logic formula/problem.
 
 ```
-$ propsolve --expression "a & b -> c"
+$ propsolve --eval "a & b -> c"
 formula is satisfiable, e.g. with:
 
 a := 1
@@ -39,13 +39,13 @@ c := 0
 | `a == b`         | Equivalence (Equal)                                    |
 | `a != b`         | Negated Equivalence (Not Equal)                        |
 | `a ^ b`          | Exclusive Or (Xor)                                     |
-| `a; b`           | Multiple expressions which are all asserted to be true |
+| `a; b`           | Multiple formulas which are all asserted to be true |
 | `// comment`     | Single-line comment                                    |
 | `/* comment */`  | Multi-line comment                                     |
 
 - All used identifiers are treated as Boolean variables
     - except for the constants `true` and `false` 
-- All expressions/formulas are asserted to be true
+- All formulas are asserted to be true
 - All operators with multiple operands are left-associative
     - meaning `a & b & c == (a & b) & c` 
 - Operator precedence is the following (in descending order):

@@ -22,7 +22,7 @@ pub enum Ast<'src> {
 }
 
 pub fn parse(input: &input::Input) -> Ast<'_> {
-    parser().parse(&input.expression).into_result().unwrap_or_else(|errors| {
+    parser().parse(&input.formula).into_result().unwrap_or_else(|errors| {
         for error in errors {
             output::rich_parser_error(&error, input);
         }
@@ -93,8 +93,8 @@ fn parser<'src>() -> impl Parser<'src, &'src str, Ast<'src>, extra::Err<Rich<'sr
             |lhs, (operator, rhs)| operator(Box::new(lhs), Box::new(rhs)),
         );
 
-        // all expressions separated by semicolons have to be true at the same time
-        // => treat them as an AND of expressions
+        // all formulas separated by semicolons have to be true at the same time
+        // => treat them as an AND of formulas
         let semicolons = equality.clone().foldl(
             pad_char_op(';').repeated().to(Ast::And as fn(_, _) -> _)
             .then(equality)

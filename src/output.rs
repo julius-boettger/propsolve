@@ -56,7 +56,7 @@ pub fn rich_parser_error(error: &Rich<'_, char>, input: &Input) {
                 .with_color(Color::Red),
         )
         .finish()
-        .print((source, Source::from(&input.expression)))
+        .print((source, Source::from(&input.formula)))
         .unwrap();
 }
 
@@ -73,6 +73,10 @@ pub fn path_is_dir(file_path: &std::path::PathBuf) {
 #[allow(clippy::unnecessary_debug_formatting)] // is necessary
 pub fn error_reading_path(file_path: &std::path::PathBuf, error: &std::io::Error) {
     println!("{} Reading path to input file ({file_path:?}) failed: {error}", "Error:".red().bold());
+}
+
+pub fn no_stdin() {
+    println!("{} Expected input via stdin, but none was provided, did you pipe something in?", "Error:".red().bold());
 }
 
 pub fn smt_string(smt_string: &str) {
