@@ -23,7 +23,7 @@ c := 0
 
 - Automatic check for satisfiability, unsatisfiability and tautology
 - Transpile to [SMT-LIB language](https://smt-lib.org/language.shtml) to solve with any compatible solver using `--print`
-- Read formula from file or command line argument
+- Read formula from file, command line argument or stdin
     - See `propsolve --help`
 - Fancy parser errors using [ariadne](https://docs.rs/ariadne/latest/ariadne/)
 
